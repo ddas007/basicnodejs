@@ -1,0 +1,59 @@
+ID: basicnodejs
+_schema-version: '3.1'
+version: 0.0.1
+parameters:
+  enable-parallel-deployments: true
+
+modules:
+  - name: basicnodejs-service
+    type: nodejs
+    path: srv
+    build-parameters:
+      ignore:
+        - 'default-*.json'
+        - .env
+        - '*node_modules*'
+        - package-lock.json
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: basicnodejs-xsuaa
+
+  - name: basicnodejs-approuter
+    type: approuter.nodejs
+    path: app
+    build-parameters:
+      ignore:
+        - 'default-*.json'
+        - .env
+        - '*node_modules*'
+        - package-lock.json
+    parameters:
+      memory: 256M
+      disk-quota: 512M
+      keep-existing-routes: true
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api # must be used in xs-app.json as well
+          url: ~{srv-url}
+          forwardAuthToken: true
+      - name: basicnodejs-xsuaa
+
+
+resources:
+ - name: basicnodejs-xsuaa
+   type: org.cloudfoundry.managed-service
+   parameters:       
+     service: xsuaa
+     service-plan: application 
+     config:
+        xsappname: basicnodejs-${org}-${space}        
+        tenant-mode: dedicated
+        oauth2-configuration:
+          redirect-uris:
+            - "http://localhost:5000/**"
+            - "https://*.hana.ondemand.com/**"
