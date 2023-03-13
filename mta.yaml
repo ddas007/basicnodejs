@@ -13,7 +13,7 @@ modules:
         - 'default-*.json'
         - .env
         - '*node_modules*'
-        - package-lock.json
+        - package-lock.json        
     provides:
       - name: srv-api
         properties:
@@ -47,13 +47,14 @@ modules:
 resources:
  - name: basicnodejs-xsuaa
    type: org.cloudfoundry.managed-service
-   parameters:       
+   parameters: 
+     path: ./xs-security.json      
      service: xsuaa
      service-plan: application 
-     config:
-        xsappname: basicnodejs-${org}-${space}        
-        tenant-mode: dedicated
-        oauth2-configuration:
-          redirect-uris:
-            - "http://localhost:5000/**"
-            - "https://*.hana.ondemand.com/**"
+    #  config:
+    #     xsappname: basicnodejs-${org}-${space}        
+    #     tenant-mode: dedicated
+        # oauth2-configuration:
+        #   redirect-uris:
+        #     - "http://localhost:5000/**"
+        #     - "https://*.hana.ondemand.com/**"
